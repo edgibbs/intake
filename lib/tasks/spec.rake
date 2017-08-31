@@ -11,21 +11,16 @@ namespace :spec do # rubocop:disable BlockLength
     args.any? ? args.join(' ') : 'spec'
   end
 
-  def webpack?
-    run_webpack = file_list == 'spec' || file_list == 'spec/' || file_list.include?('features')
-    'bin/webpack &&' if run_webpack
-  end
-
   desc 'Run specs in ca_intake container'
   task :intake do
     command = "AUTHENTICATION=false RAILS_ENV=test bundle exec rspec #{file_list}"
-    system "#{webpack?} docker-compose exec ca_intake bash -c '#{command}'"
+    system "docker-compose exec ca_intake bash -c '#{command}'"
   end
 
   namespace :intake do
     desc 'Run specs locally outside container'
     task :local do
-      system "#{webpack?} #{host_env_string} bundle exec rspec #{file_list}"
+      system "#{host_env_string} bundle exec rspec #{file_list}"
     end
     desc 'Run specs in parallel in ca_intake container (from host)'
     task :parallel do
@@ -39,7 +34,7 @@ namespace :spec do # rubocop:disable BlockLength
         --rm ca_intake
         bundle exec parallel_rspec
       END
-      system "#{webpack?} #{docker_cmd} #{file_list}"
+      system "#{docker_cmd} #{file_list}"
     end
 
     desc 'Run ALL THE SPECS, LINT, & KARMA!!!'
