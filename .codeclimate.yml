@@ -7,16 +7,19 @@ engines:
     enabled: true
     config:
       languages:
-      - ruby
-      - javascript
+        ruby:
+          mass_threshold: 20
+        javascript:
+          mass_threshold: 100
+    checks:
+      Similar code:
+        enabled: false
   eslint:
     enabled: true
-    channel: "eslint-3"
   fixme:
     enabled: true
   rubocop:
     enabled: true
-    channel: rubocop-0-48
 ratings:
   paths:
   - Gemfile.lock
@@ -27,8 +30,14 @@ ratings:
   - "**.jsx"
 exclude_paths:
 - Gulpfile.js
+- Gulpfile.js
 - karma.conf.js
 - config/
 - db/
 - spec/
 - vendor/
+- docker/
+- legal/
+- log/
+- bin/
+- public/
