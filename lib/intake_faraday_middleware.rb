@@ -18,7 +18,7 @@ module IntakeFaradayMiddleware
 
       is_good = case status
                 when 200
-                  method == :get || method == :put
+                  method == :get || method == :put || method == :post
                 when 201
                   method == :post
                 when 204
