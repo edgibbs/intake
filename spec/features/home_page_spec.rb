@@ -10,30 +10,33 @@ feature 'home page' do
       end
     end
 
+    let(:dora_response) do
+      {
+        hits: {
+          hits: [{
+            _source: {
+              first_name: 'Marge',
+              gender: 'female',
+              last_name: 'Simpson',
+              ssn: '123-23-1234',
+              addresses: [{'street_number' => 123, 'street_name' => 'Fake St', 'state_code' => 'CA', 'type' => 'Home'}]
+            }
+          }]
+        }
+      }
+    end
+
     scenario 'displays search bar' do
-      address = FactoryGirl.create(
-        :address,
-        street_address: '123 Fake St',
-        city: 'Springfield',
-        state: 'NY',
-        zip: '12345',
-        type: 'Home'
-      )
-      marge = FactoryGirl.create(
-        :person_search,
-        first_name: 'Marge',
-        gender: 'female',
-        last_name: 'Simpson',
-        ssn: '123-23-1234',
-        addresses: [address]
+      response = double(
+        :response,
+        body: dora_response,
+        status: 200
       )
 
-      %w[Ma Mar Marg Marge].each do |search_text|
-        stub_request(
-          :get,
-          intake_api_url(ExternalRoutes.intake_api_people_search_v2_path(search_term: search_text))
-        ).and_return(json_body([marge].to_json, status: 200))
-      end
+      stub_request(
+        :post,
+        dora_api_url(Rails.application.routes.url_helpers.dora_people_path),
+      ).to_return(json_body(dora_response.to_json, status: 200))
 
       visit root_path
 
@@ -43,20 +46,10 @@ feature 'home page' do
 
       expect(
         a_request(
-          :get,
-          intake_api_url(ExternalRoutes.intake_api_people_search_v2_path(search_term: 'M'))
+          :post,
+          dora_api_url(Rails.application.routes.url_helpers.dora_people_path)
         )
-      ).to_not have_been_made
-      %w[Ma Mar Marg Marge].each do |search_text|
-        expect(
-          a_request(
-            :get,
-            intake_api_url(
-              ExternalRoutes.intake_api_people_search_v2_path(search_term: search_text)
-            )
-          )
-        ).to have_been_made
-      end
+      ).to have_been_made.times(4)
     end
   end
 

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 def host_env_string
-  'REDIS_HOST=redis_host REDIS_PORT=6379 API_URL=http://api FERB_API_URL=https://ferb_api'
+  'REDIS_HOST=redis_host REDIS_PORT=6379 API_URL=http://api FERB_API_URL=https://ferb_api DORA_API_URL=http://dora_api'
 end
 
 namespace :spec do # rubocop:disable BlockLength

@@ -27,6 +27,10 @@ module WebmockHelpers
   def ferb_api_url(path)
     "#{Rails.application.config.intake[:ferb_api_url]}#{path}"
   end
+
+  def dora_api_url(path)
+    "#{Rails.application.config.intake[:dora_api_url]}#{path}"
+  end
 end
 
 RSpec.configure do |config|

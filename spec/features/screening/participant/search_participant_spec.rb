@@ -45,6 +45,57 @@ feature 'searching a participant in autocompleter' do
       sealed: false
     )
   end
+
+  let(:marge_response) do
+    {
+      hits: {
+        hits: [{
+          _source: {
+            id: person.id,
+            legacy_source_table: 'CLIENT_T',
+            first_name: person.first_name,
+            gender: person.gender,
+            last_name: person.last_name,
+            ssn: person.ssn,
+            phone_numbers: [{"number"=>phone_number.phone_number, "type"=>phone_number.type}],
+            :languages=>[
+              {:name=>"French", :primary=>true},
+              {:name=>"Italian"}
+            ],
+            addresses: [{
+              "legacy_id"=>address.legacy_id,
+              "legacy_source_table"=>address.legacy_source_table,
+              'street_number' => 123,
+              'street_name' => 'Fake St',
+              'state_code' => 'NY',
+              city: 'Springfield',
+              zip: '12345',
+              'type' => 'Work'
+            }],
+            date_of_birth: date_of_birth.to_s(:db),
+            legacy_descriptor: {
+              :legacy_last_updated=>person.legacy_descriptor.legacy_last_updated,
+              :legacy_id=>person.legacy_descriptor.legacy_id,
+              :legacy_ui_id=>person.legacy_descriptor.legacy_ui_id,
+              :legacy_table_name=>person.legacy_descriptor.legacy_table_name,
+              :legacy_table_description=>person.legacy_descriptor.legacy_table_description
+            },
+            race_ethnicity: {
+              :hispanic_origin_code=>'Y',
+              :race_codes=>[
+                {:description=>'White - European*'},
+                {:description=>'Alaskan Native*'},
+              ],
+              :hispanic_codes=>[
+                {description: 'Central American'},
+              ],
+              :hispanic_unable_to_determine_code=>''},
+            :sensitivity_indicator=>"S",
+          }
+        }]
+      }
+    }
+  end
   before do
     stub_request(
       :get, intake_api_url(ExternalRoutes.intake_api_screening_path(existing_screening.id))
@@ -57,9 +108,19 @@ feature 'searching a participant in autocompleter' do
   context 'search for a person' do
     scenario 'search result contains person information' do
       stub_request(
-        :get,
-        intake_api_url(ExternalRoutes.intake_api_people_search_v2_path(search_term: 'Ma'))
-      ).and_return(json_body([person].to_json, status: 200))
+        :post,
+        dora_api_url(Rails.application.routes.url_helpers.dora_people_path),
+      )
+        .with('body' => {
+          'query' => {
+            'bool' => {
+              'must' => array_including('multi_match' => hash_including('query' => 'ma'))
+            }
+          },
+          '_source' => anything,
+          'highlight' => anything
+        })
+        .to_return(json_body(marge_response.to_json, status: 200))
 
       within '#search-card', text: 'Search' do
         fill_in_autocompleter 'Search for any person', with: 'Ma'

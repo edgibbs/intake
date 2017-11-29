@@ -19,7 +19,7 @@ class PersonSearchRepository
     )
     results = DoraAPI.interpret_response(response)
     results.map do |result_attributes|
-      PersonSearch.new(result_attributes)
+      PersonSearch.new(result_attributes.merge(legacy_id: result_attributes[:id]))
     end
   end
 

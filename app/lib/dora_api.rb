@@ -13,8 +13,8 @@ class DoraAPI < JsonAPI
         PeopleSearchResultsInterpreter.interpret_addresses(document)
         PeopleSearchResultsInterpreter.interpret_languages(document)
         PeopleSearchResultsInterpreter.interpret_highlights(document)
-        PeopleSearchResultsInterpreter.interpret_source_ssn(document)
         PeopleSearchResultsInterpreter.interpret_race_ethnicity(document)
+        PeopleSearchResultsInterpreter.interpret_ssn(document)
         document['_source']
       end
     end

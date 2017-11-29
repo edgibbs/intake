@@ -50,15 +50,6 @@ class PeopleSearchResultsInterpreter # :nodoc:
       document['_source'] = document['_source'].merge('highlight' => highlight)
     end
 
-    def interpret_source_ssn(document)
-      source = document['_source']
-      highlight = source.stringify_keys['highlight']
-      source['ssn'] = add_placeholder_to_redacted_ssn(source.stringify_keys['ssn'])
-      return unless highlight && highlight['ssn']
-      highlight['ssn'] =
-        "<em>#{highlight['ssn'][4..-6].gsub(/.(?=.{#{ALLOWABLE_SSN_CHARS}})/, '')}</em>"
-    end
-
     def interpret_race_ethnicity(document)
       source = document['_source']
       race_ethnicity = source.stringify_keys['race_ethnicity']
@@ -75,6 +66,13 @@ class PeopleSearchResultsInterpreter # :nodoc:
         'ethnicity_detail' => interpret_ethnicities(race_ethnicity['hispanic_codes'])
       }
       document['_source'] = source.merge('races' => races).merge('ethnicity' => ethnicity)
+    end
+
+    def interpret_ssn(document)
+      source = document['_source']
+      ssn = source['ssn']
+      return unless source['ssn']&.length == 9
+      source['ssn'] = "#{ssn[0..2]}-#{ssn[3..4]}-#{ssn[5..8]}"
     end
 
     def hispanic_latino_origin_for_code(code)

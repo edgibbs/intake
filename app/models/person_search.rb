@@ -5,6 +5,7 @@ class PersonSearch
   include Virtus.model
 
   attribute :id
+  attribute :legacy_id
   attribute :date_of_birth
   attribute :first_name
   attribute :gender
@@ -24,4 +25,5 @@ class PersonSearch
   attribute :legacy_descriptor, LegacyDescriptor
   attribute :sensitive, Boolean
   attribute :sealed, Boolean
+
 end
